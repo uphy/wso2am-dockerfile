@@ -1,0 +1,31 @@
+version: "2"
+services:
+    postgres:
+        image: postgres
+        ports:
+            - "5432:5432"
+        environment:
+            - "POSTGRES_PASSWORD=postgres"
+    wso2am-analytics:
+        build: wso2am-analytics
+        depends_on:
+            - postgres
+        links:
+            - "postgres:postgres"
+        ports:
+            - "9444:9444"
+            - "7612:7612"
+            - "7712:7712"
+    wso2am:
+        build: wso2am
+        links:
+            - "wso2am-analytics:wso2am-analytics"
+        ports:
+            - "8280:8280"
+            - "8243:8243"
+            - "9443:9443"
+            - "9763:9763"
+            - "10397:10397"
+        depends_on:
+            - wso2am-analytics
+            - postgres

@@ -16,6 +16,13 @@ services:
             - "9444:9444"
             - "7612:7612"
             - "7712:7712"
+    wso2bps:
+        build: wso2bps
+        depends_on:
+            - postgres
+        ports:
+            - "9445:9445"
+            - "9765:9765"
     wso2am:
         build: wso2am
         links:

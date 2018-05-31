@@ -17,19 +17,7 @@ RUN cd /tmp && \
     rm -f wso2am-*.zip && \
     mv wso2am-* $PRODUCT_HOME
 
-# Install PostgreSQL JDBC Driver
-#COPY postgresql-*.jar $PRODUCT_HOME/conf/repository/components/lib
-
-#RUN sed -i -e '/<Analytics>/,/<\/Analytics>/ s/<Enabled>false<\/Enabled>/<Enabled>true<\/Enabled>/' \
-#           -e '/DASServerURL/ s/localhost/wso2am-analytics/' \
-#           -e '/DASAuthServerURL/ s/localhost/wso2am-analytics/' \
-#           -e '/DASRestApiURL/ s/localhost/wso2am-analytics/' \
-#           -e 's/<!--DASAuthServerURL>\(.*\)<\/DASAuthServerURL-->/<DASAuthServerURL>\1<\/DASAuthServerURL>/' \
-#           $WSO2AM_HOME/repository/conf/api-manager.xml && \
-#    sed -i -e 's/\(^log4j.rootLogger=.*\)/\1, DAS_AGENT/' $WSO2AM_HOME/repository/conf/log4j.properties && \
-#    sed -i -e 's/<BPSHost>/wso2bps/g' $WSO2AM_HOME/repository/deployment/server/jaggeryapps/admin/site/conf/site.json && \
-#    sed -i -e 's/<BPSPort>/9445/g' $WSO2AM_HOME/repository/deployment/server/jaggeryapps/admin/site/conf/site.json
-
+# Configure WSO2AM
 COPY files $PRODUCT_HOME
 
 WORKDIR $PRODUCT_HOME/bin

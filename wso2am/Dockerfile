@@ -1,19 +1,37 @@
-FROM java:8
+FROM ubuntu:16.04
 
-ARG BASE_DIR=/usr/src/
-ENV WSO2AM_HOME=$BASE_DIR/wso2am
-RUN mkdir -p $BASE_DIR
-COPY wso2am-2.0.0.zip $BASE_DIR
+# Install Oracle Java
+# 8u144 is recommended.
+# See https://docs.wso2.com/display/AM220/Installation+Prerequisites
+ADD bin/jdk-8u144-linux-x64.tar.gz /opt/
+RUN mv /opt/jdk* /opt/java
+ENV JAVA_HOME=/opt/java/ \
+    PATH=/opt/java/bin:$PATH
 
-WORKDIR $BASE_DIR
-RUN unzip wso2am-2.0.0.zip && \
-    rm -f wso2am-2.0.0.zip && \
-    mv wso2am-2.0.0 wso2am
-COPY conf $WSO2AM_HOME
+# Install WSO2AM
+ARG PRODUCT_HOME=/opt/wso2am
+COPY bin/wso2am-*.zip /tmp
+RUN cd /tmp && \
+    jar Mxf wso2am-*.zip && \
+    chmod -R a+x wso2am-*/bin/*.sh && \
+    rm -f wso2am-*.zip && \
+    mv wso2am-* $PRODUCT_HOME
 
-RUN sed -i -e 's/<BPSHost>/wso2bps/g' $WSO2AM_HOME/repository/deployment/server/jaggeryapps/admin/site/conf/site.json && \
-    sed -i -e 's/<BPSPort>/9445/g' $WSO2AM_HOME/repository/deployment/server/jaggeryapps/admin/site/conf/site.json
+# Install PostgreSQL JDBC Driver
+#COPY postgresql-*.jar $PRODUCT_HOME/conf/repository/components/lib
 
-WORKDIR $WSO2AM_HOME/bin
+#RUN sed -i -e '/<Analytics>/,/<\/Analytics>/ s/<Enabled>false<\/Enabled>/<Enabled>true<\/Enabled>/' \
+#           -e '/DASServerURL/ s/localhost/wso2am-analytics/' \
+#           -e '/DASAuthServerURL/ s/localhost/wso2am-analytics/' \
+#           -e '/DASRestApiURL/ s/localhost/wso2am-analytics/' \
+#           -e 's/<!--DASAuthServerURL>\(.*\)<\/DASAuthServerURL-->/<DASAuthServerURL>\1<\/DASAuthServerURL>/' \
+#           $WSO2AM_HOME/repository/conf/api-manager.xml && \
+#    sed -i -e 's/\(^log4j.rootLogger=.*\)/\1, DAS_AGENT/' $WSO2AM_HOME/repository/conf/log4j.properties && \
+#    sed -i -e 's/<BPSHost>/wso2bps/g' $WSO2AM_HOME/repository/deployment/server/jaggeryapps/admin/site/conf/site.json && \
+#    sed -i -e 's/<BPSPort>/9445/g' $WSO2AM_HOME/repository/deployment/server/jaggeryapps/admin/site/conf/site.json
+
+COPY files $PRODUCT_HOME
+
+WORKDIR $PRODUCT_HOME/bin
 EXPOSE 10397 8280 8243 9763 9443
-CMD ./wso2server.sh -Dsetup
+ENTRYPOINT [ "./wso2server.sh" ]

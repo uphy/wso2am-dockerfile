@@ -1,0 +1,21 @@
+version: "2"
+services:
+    postgres:
+        image: postgres
+        ports:
+            - "5432:5432"
+        environment:
+            - "POSTGRES_PASSWORD=postgres"
+        volumes:
+            - "./data/postgres:/var/lib/postgresql/data"
+            - "./postgres:/docker-entrypoint-initdb.d/"
+    wso2am:
+        build: .
+        ports:
+            - "8280:8280"
+            - "8243:8243"
+            - "9443:9443"
+            - "9763:9763"
+            - "10397:10397"
+        depends_on:
+            - postgres
